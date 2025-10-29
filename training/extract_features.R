@@ -48,7 +48,7 @@ count_plots <- function(obj,
   combined_plot <- vln_plot1 | vln_plot2 | vln_plot3
   return(combined_plot)
 }
-get_chromosome_means <- function(counts, path_to_mapped_genes='/home/amismailov/mart_export.txt'){
+get_chromosome_means <- function(counts, path_to_mapped_genes='mapped_genes.txt'){
   row_sums <- rowSums(counts)
   counts <- counts[row_sums > 0, ]
   norm_counts <- t(t(counts) / colSums(counts) * 1000)  
@@ -58,7 +58,7 @@ get_chromosome_means <- function(counts, path_to_mapped_genes='/home/amismailov/
   # Remove HLA-genes
   hla_genes <- grep("HLA", rownames(log_counts_filtered), value = TRUE)
   log_counts_filtered <- log_counts_filtered[!(rownames(log_counts_filtered) %in% hla_genes), ]
-  gene_chromosome_map <- read.table(path_to_mapped_genes, sep = '\t', header = T)  # Файл с генами и их хромосомами
+  gene_chromosome_map <- read.table(path_to_mapped_genes, sep = '\t', header = T)  
   chromosome_means <- sapply(unique(gene_chromosome_map$Chromosome.scaffold.name), function(chrom) {
     genes <- intersect(
       gene_chromosome_map$HGNC.symbol[gene_chromosome_map$Chromosome.scaffold.name == chrom],
@@ -167,7 +167,7 @@ stantard_workflow <- function(seu, n_components=15, res=0.1){
 
 
 #--------------------------------------GSE89567 (smatseq2)------------------------
-dt <- fread("/mnt/jack-5/amismailov/CAF_study/GCF_2/GSE89567.txt.gz")
+dt <- fread("path_to_dir/GSE89567.txt.gz")
 
 genes <- gsub("[\"']", "", dt[[1]])
 genes <- trimws(genes)
@@ -252,7 +252,7 @@ write.csv(
 
 
 #--------------------------------------10X------------------------------------------
-data.dir <- "/mnt/jack-5/amismailov/CAF_study/GCF_2/filtered_feature_bc_matrix"
+data.dir <- "path_to_dir/filtered_feature_bc_matrix"
 
 
 m <- Read10X(data.dir = data.dir)
@@ -337,7 +337,7 @@ write.csv(
 
 
 #-----------------------------------smartseq2 (validation dataset)-----------------------------
-path = '/mnt/jack-5/amismailov/CAF_study'
+path = 'path_to_dir'
 dirs <- c("sample1", "sample2","sample3","sample4","sample5","sample6","sample7")
 for (x in dirs) {
   file_path <- paste0(path, '/', x, '/data.txt')
