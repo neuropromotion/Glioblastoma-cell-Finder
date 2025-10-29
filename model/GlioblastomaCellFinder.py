@@ -4,7 +4,7 @@ import scipy.sparse as sp
 import xgboost as xgb 
 
 class GCF:
-    def __init__(self, weights_path='/mnt/jack-5/amismailov/CAF_study/CNV/GCF_config.json'): 
+    def __init__(self, weights_path='GCF_config.json'): 
         
 
         self.model = xgb.XGBClassifier()
@@ -88,7 +88,7 @@ class GCF:
         Xg, genes, cells = self.build_log2_cpm1000_plus1_from_adata(obj)   
         return self.chromosome_means_from_logmat(Xg, genes, cells, path)
     
-    def predict(self, obj, map_path='/home/amismailov/mart_export.txt'): 
+    def predict(self, obj, map_path='mapped_genes.txt'): 
         adata = obj.copy() 
         if 'counts' not in adata.layers:
             adata.layers['counts'] = adata.X.copy()   
