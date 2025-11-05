@@ -22,8 +22,8 @@ The model is designed for convenient use with **Seurat** workflows.
 ---
 
 ## Usage
-Model.R
-The core function provided by this repository is:
+
+The core function provided by this repository is (stored in Model.R):
 
 ```r
 seurat_object <- predict_and_add_metadata(seurat_object, weights_path='xboost.model')
