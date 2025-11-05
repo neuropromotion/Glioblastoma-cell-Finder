@@ -26,37 +26,13 @@ The core function provided by this repository is:
 
 ```r
 predict_and_add_metadata(seurat_object, weights_path='xboost.model')
+```
+🧪 Test Inference
 
-## 🧪 Test Inference
+The folder test_results_plots/ contains example results from running the model on test data.
+For each test sample, we provide the true labels and predicted annotations.
 
-The folder `test_results_plots/` contains example results from running the model on test data.  
-For each test sample, we provide the **true labels** and **predicted annotations**.
-
-### Test 1
-
-<p align="center">
-  <img src="test_results_plots/test1_true.png" width="400">
-  <br>
-  <em>True labels for Test 1</em>
-</p>
-
-<p align="center">
-  <img src="test_results_plots/test1_predicted.png" width="400">
-  <br>
-  <em>Predicted labels for Test 1</em>
-</p>
-
-### Test 2
-
-<p align="center">
-  <img src="test_results_plots/test2_true.png" width="400">
-  <br>
-  <em>True labels for Test 2</em>
-</p>
-
-<p align="center">
-  <img src="test_results_plots/test2_predicted.png" width="400">
-  <br>
-  <em>Predicted labels for Test 2</em>
-</p>
-
+Test 1
+<p align="center"> <img src="test_results_plots/test1_true.png" width="400"> <br> <em>True labels for Test 1</em> </p> <p align="center"> <img src="test_results_plots/test1_predicted.png" width="400"> <br> <em>Predicted labels for Test 1</em> </p>
+Test 2
+<p align="center"> <img src="test_results_plots/test2_true.png" width="400"> <br> <em>True labels for Test 2</em> </p> <p align="center"> <img src="test_results_plots/test2_predicted.png" width="400"> <br> <em>Predicted labels for Test 2</em> </p>
