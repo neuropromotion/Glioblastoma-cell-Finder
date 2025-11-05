@@ -11,23 +11,15 @@ The model is designed for convenient use with **Seurat** workflows.
 | File | Description |
 |------|-------------|
 | `model.R` | Contains the main function `predict_and_add_metadata` |
-| `weights/` *(optional)* | Directory for storing trained model weight files |
+| `xgboots.model` | model weights |
 
 ---
 
-## 🔧 Requirements
-
-- R (≥ 4.0)
-- Seurat (≥ 4.0)
-- dplyr
-- data.table  
-*(Additional dependencies may be required depending on model training environment)*
-
----
-
-## 🚀 Usage
+## Usage
 
 The core function provided by this repository is:
 
 ```r
-predict_and_add_metadata(seurat_object, weights_path)
+predict_and_add_metadata(seurat_object, weights_path='xboost.model')
+
+
