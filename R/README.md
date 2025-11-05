@@ -6,7 +6,7 @@ The model is designed for convenient use with **Seurat** workflows.
 
 ---
 
-## 📦 Files
+## Files
 
 | File | Description |
 |------|-------------|
@@ -27,7 +27,7 @@ The core function provided by this repository is:
 ```r
 predict_and_add_metadata(seurat_object, weights_path='xboost.model')
 ```
-🧪 Test Inference
+Test Inference
 
 The folder test_results_plots/ contains example results from running the model on test data.
 For each test sample, we provide the true labels and predicted annotations.
