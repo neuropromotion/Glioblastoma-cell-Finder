@@ -22,11 +22,14 @@ The model is designed for convenient use with **Seurat** workflows.
 ---
 
 ## Usage
-
+Model.R
 The core function provided by this repository is:
 
 ```r
 seurat_object <- predict_and_add_metadata(seurat_object, weights_path='xboost.model')
+# Visualization:
+DimPlot(seurat.obj, group.by = 'ML_annotation')
+FeaturePlot(seurat.obj, features = "GBM_prob", cols = c('blue','black',"red")) # black cells - unconfident prediction
 ```
 
 ## Test Inference 
