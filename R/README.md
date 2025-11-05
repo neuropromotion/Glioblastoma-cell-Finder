@@ -1,4 +1,4 @@
-# Glioblastoma Cell Finder  
+# Usage in R
 ### Gradient Boosting Model for Cell-Type Annotation in R
 
 This repository provides a **gradient boosting–based prediction model** for identifying glioblastoma-associated cell populations in **single-cell RNA-seq** datasets using **R**.  
