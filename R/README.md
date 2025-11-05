@@ -33,4 +33,4 @@ seurat_object <- predict_and_add_metadata(seurat_object, weights_path='xboost.mo
 Test 1
 <p align="center"> <img src="test_results_plots/test1_true.png" width="750"> <br> <em>True labels for Test 1</em> </p> <p align="center"> <img src="test_results_plots/test1_predicted.png" width="750"> <br> <em>Predicted labels for Test 1</em> </p>
 Test 2
-<p align="center"> <img src="test_results_plots/test2_true.png" width="400"> <br> <em>True labels for Test 2</em> </p> <p align="center"> <img src="test_results_plots/test2_predicted.png" width="400"> <br> <em>Predicted labels for Test 2</em> </p>
+<p align="center"> <img src="test_results_plots/test2_true.png" width="750"> <br> <em>True labels for Test 2</em> </p> <p align="center"> <img src="test_results_plots/test2_predicted.png" width="750"> <br> <em>Predicted labels for Test 2</em> </p>
