@@ -9,7 +9,6 @@ The model is designed for convenient use with **Seurat** workflows.
 ## 📦 Files
 
 | File | Description |
-
 |------|-------------|
 | `model.R` | Predtreinde model, requires weights (`xgboots.model`). Contains the main function `predict_and_add_metadata` |
 | `xgboots.model` | model weights |
