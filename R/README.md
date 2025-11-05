@@ -16,6 +16,7 @@ The model is designed for convenient use with **Seurat** workflows.
 | `train_dataset_formation.R` | Training dataset preparation pipeline |
 | `train_val_test.R` | Code for training, validation, and independent test evaluation |
 | `gene_mapping.txt` | Contains gene-to-chromosome mapping derived from GTF annotation |
+| `test_results_plots` | Folder with test inference results (.png) |
 
 
 ---
@@ -25,14 +26,11 @@ The model is designed for convenient use with **Seurat** workflows.
 The core function provided by this repository is:
 
 ```r
-predict_and_add_metadata(seurat_object, weights_path='xboost.model')
+seurat_object <- predict_and_add_metadata(seurat_object, weights_path='xboost.model')
 ```
-Test Inference
 
-The folder test_results_plots/ contains example results from running the model on test data.
-For each test sample, we provide the true labels and predicted annotations.
-
+## Test Inference 
 Test 1
-<p align="center"> <img src="test_results_plots/test1_true.png" width="400"> <br> <em>True labels for Test 1</em> </p> <p align="center"> <img src="test_results_plots/test1_predicted.png" width="400"> <br> <em>Predicted labels for Test 1</em> </p>
+<p align="center"> <img src="test_results_plots/test1_true.png" width="750"> <br> <em>True labels for Test 1</em> </p> <p align="center"> <img src="test_results_plots/test1_predicted.png" width="750"> <br> <em>Predicted labels for Test 1</em> </p>
 Test 2
 <p align="center"> <img src="test_results_plots/test2_true.png" width="400"> <br> <em>True labels for Test 2</em> </p> <p align="center"> <img src="test_results_plots/test2_predicted.png" width="400"> <br> <em>Predicted labels for Test 2</em> </p>
