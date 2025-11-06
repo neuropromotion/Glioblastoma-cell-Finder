@@ -1,7 +1,7 @@
 library(Seurat) 
 
 get_chromosome_means <- function(counts, path_to_mapped_genes='path_to/mapped_genes.txt'){
-  cat('Start getting chromosome_means...')
+  cat('Start getting chromosome_means...\n')
   row_sums <- rowSums(counts)
   counts <- counts[row_sums > 0, ]
   norm_counts <- t(t(counts) / colSums(counts) * 1000)  
@@ -9,6 +9,7 @@ get_chromosome_means <- function(counts, path_to_mapped_genes='path_to/mapped_ge
   gene_filter <- rowSums(log_counts) >= 100
   log_counts_filtered <- log_counts[gene_filter, ]
   # Remove HLA-genes
+  cat('Removing HLA genes...\n')
   hla_genes <- grep("HLA", rownames(log_counts_filtered), value = TRUE)
   log_counts_filtered <- log_counts_filtered[!(rownames(log_counts_filtered) %in% hla_genes), ]
   gene_chromosome_map <- read.table(path_to_mapped_genes, sep = '\t', header = T)  # Файл с генами и их хромосомами
@@ -27,6 +28,7 @@ get_chromosome_means <- function(counts, path_to_mapped_genes='path_to/mapped_ge
   chromosome_means <- as.data.frame(chromosome_means)
   colnames(chromosome_means) <- paste0("Chr", rep(1:22))
   rownames(chromosome_means) <- rownames(t(log_counts_filtered))
+  cat('Done!\n')
   return(chromosome_means)
 }
 
