@@ -5,21 +5,18 @@ library(tidymodels)
 library(vip)
 library(doParallel)
 
-source("/home/amismailov/R/chromosome_means_function.R") # load chromosome_means function
+source("chromosome_means_function.R")# get_chromosome_means func
 
 #-----------------------TRAIN-------------------------- 
-# data processed in train_dataset_formation.R file 
+# data processed in train_data_formation.R file 
+
 cancers <- c("chromosome_means_smartseq2.csv", 
-             "chromosome_means_10x_1.csv", 
-             "chromosome_means_MF_gbm.csv")
+             "chromosome_means_10x_1.csv")
 
 stromals <- c("chromosome_means_smartseq2_stromal.csv", 
-              "chromosome_means_10x_1_stromal.csv",
-              "chromosome_means_MF_stromal.csv")
-
-
+              "chromosome_means_10x_1_stromal.csv")
 df.cancer <- data.frame()
-df.stromal <- data.frame()
+df.stromal <- data.frame() 
 
 for (file in cancers){
   current <- read.csv(file, stringsAsFactors = FALSE)
@@ -32,8 +29,27 @@ for (file in stromals){
   df.stromal <- rbind(df.stromal, current)
 }
 
-dim(df.cancer) #17747    22
-dim(df.stromal) #13468    22
+# merged_filtered dataset:
+df.merged_filtered <- as.data.frame(read.csv("chromosome_means_MF_full.csv", stringsAsFactors = FALSE)) # Full 
+gbm.barcodes <- read.csv("cancer_barcodes.csv", stringsAsFactors = FALSE) # GBM barcodes
+macro.barcodes <- read.csv("macro_barcodes.csv", stringsAsFactors = FALSE) # macrophages barcodes
+ol.barcodes <- read.csv("OL_barcodes.csv", stringsAsFactors = FALSE) # OL barcodes
+# filter out 
+mf.gbm <- df.merged_filtered[df.merged_filtered$X %in% gbm.barcodes$cell, , drop = FALSE]
+mf.macro <- df.merged_filtered[df.merged_filtered$X %in% macro.barcodes$cell, , drop = FALSE]
+mf.ol <- df.merged_filtered[df.merged_filtered$X %in% ol.barcodes$cell, , drop = FALSE]
+# bind macrophages and OLs in stromal:
+mf.stromal = rbind(mf.macro, mf.ol)
+mf.gbm$X=NULL # delete barcodes
+mf.stromal$X=NULL # delete barcodes
+
+# merge 
+df.cancer <- rbind(df.cancer, mf.gbm)
+df.stromal <- rbind(df.stromal, mf.stromal)
+
+dim(df.cancer) #8110x22 - unbalanced
+dim(df.stromal) #4679x22
+# 12789 cells for train eventually 
 
 # target
 df.cancer$target  <- factor("cancer",  levels = c("stromal","cancer"))
@@ -74,7 +90,7 @@ dvalid <- xgb.DMatrix(data = X_valid, label = y_valid)
 # params
 params <- list(
   objective = "binary:logistic",
-  eval_metric = "auc",
+  eval_metric = "aucpr",
   tree_method = "hist"
 )
 params$eta <- 0.2              # более стабильное обучение
@@ -101,16 +117,45 @@ bst <- xgb.train(
 )
 
 # Stopping. Best iteration:
-#   [497]	train-auc:0.999996	valid-auc:0.998026
+# train-aucpr:0.999987	valid-aucpr:0.999613
 
 #-------------SAVE Model weigths----------------
 xgb.save(bst, "boosting/xgboost.model")
 
+#---------------VALIDATION--------------------
+# data prepared in https://github.com/neuropromotion/CAFs-in-glioblastoma-microenvironment/blob/main/main_branch.R
+merged_filtered <- readRDS(file = "path_to_RDS/merged_filtered_v2.rds")
+counts <- GetAssayData(merged_filtered, assay = "RNA", layer = "counts")
+chromosome_means <- get_chromosome_means(counts)
+barcodes <- rownames(chromosome_means)
+#DMatrix
+dval <- xgb.DMatrix(data = data.matrix(chromosome_means))
+model <- xgb.load("boosting/xgboost.model")
+pred_prob <- predict(model, dval)            
+pred_cls  <- ifelse(pred_prob >= 0.5, 1L, 0L)
+
+df_predictions <- data.frame(
+  barcode = barcodes,
+  predicted_class = pred_cls,
+  predicted_prob = pred_prob
+)
+merged_filtered$GBM_prob <- pred_prob  
+ann <- ifelse(df_predictions$predicted_class == 1, "Glioblastoma cells", "Stromal cells")
+names(ann) <- df_predictions$barcode
+merged_filtered$ML_annotation <- ann[Cells(merged_filtered)]
+
+
+#DimPlot(val)
+#DimPlot(merged_filtered, group.by = 'ML_annotation', cols = c('#FF3E96', '#1E90FF'))
+FeaturePlot(merged_filtered, features = "GBM_prob",
+            cols = c('blue','black',"red"))
+
+
 #---------------TEST_1--------------------
 # Dataset URL:
 # https://www.10xgenomics.com/datasets/human-glioblastoma-multiforme-3-v-3-whole-transcriptome-analysis-3-standard-4-0-0
-# data processed in validation_1.R file (CAFs in glioblastoma repository)
-val <- readRDS(file = "path_to/validation_1.rds")
+# data processed in https://github.com/neuropromotion/CAFs-in-glioblastoma-microenvironment/blob/main/Validation_1.R
+val <- readRDS(file = "path_to_RDS/test_1.rds")
 counts <- GetAssayData(val, assay = "RNA", layer = "counts")
 chromosome_means <- get_chromosome_means(counts)
 
@@ -132,16 +177,20 @@ names(ann) <- df_predictions$barcode
 val$ML_annotation <- ann[Cells(val)]
 
 
-#DimPlot(val)
+DimPlot(val, group.by = 'init_annot')
 DimPlot(val, group.by = 'ML_annotation', cols = c('#FF3E96', '#1E90FF'))
-FeaturePlot(val, features = "GBM_prob",
-            cols = c('blue','black',"red"))
+FeaturePlot(val, features = "GBM_prob") + 
+  scale_color_gradientn(
+    colours = c("blue", 'black', "red"),  # Четыре цвета
+    values = c(0, 0.4, .65,  1),  # Точки привязки (нормализованные от 0 до 1)
+    limits = c(0, 1)  # Соответствует col.min и col.max в DotPlot
+  )
 
 #---------------TEST_2--------------------
 # Dataset URL:
 # https://www.10xgenomics.com/datasets/human-glioblastoma-multiforme-3-v-3-whole-transcriptome-analysis-3-standard-4-0-0
-# data processed in validation_2.R file (CAFs in glioblastoma repository)
-val <- readRDS(file = "path_to/validation_2.rds")
+# data processed in https://github.com/neuropromotion/CAFs-in-glioblastoma-microenvironment/blob/main/Validation_2.R
+val <- readRDS(file = "path_to_RDS/test_2.rds")
 counts <- GetAssayData(val, assay = "RNA", layer = "counts")
 chromosome_means <- get_chromosome_means(counts)
 
@@ -163,7 +212,11 @@ names(ann) <- df_predictions$barcode
 val$ML_annotation <- ann[Cells(val)]
 
 
-#DimPlot(val, label=F)
+DimPlot(val, label=F, cols=c('red', 'blue', 'purple', 'skyblue', 'gold1'))
 DimPlot(val, group.by = 'ML_annotation', cols = c('#FF3E96', '#1E90FF'))
-FeaturePlot(val, features = "GBM_prob",
-            cols = c('blue','black',"red"))
+FeaturePlot(val, features = "GBM_prob") + 
+  scale_color_gradientn(
+    colours = c("blue", 'black', "red"),  # Четыре цвета
+    values = c(0, 0.4, .65,  1),  # Точки привязки (нормализованные от 0 до 1)
+    limits = c(0, 1)  # Соответствует col.min и col.max в DotPlot
+  )
