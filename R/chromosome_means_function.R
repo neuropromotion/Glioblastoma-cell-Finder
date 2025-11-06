@@ -1,5 +1,6 @@
 library(Seurat) 
-
+# script for make mapped_genes.txt:
+# https://github.com/neuropromotion/Bioinformatics/tree/main/chromosome_means
 get_chromosome_means <- function(counts, path_to_mapped_genes='path_to/mapped_genes.txt'){
   cat('Start getting chromosome_means...\n')
   row_sums <- rowSums(counts)
