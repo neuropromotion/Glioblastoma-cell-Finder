@@ -12,7 +12,7 @@ The model is designed for convenient use with **Seurat** workflows.
 |------|-------------|
 | `model.R` | Predtreinde model, requires weights (`xgboots.model`) and `chromosome_means_function.R`. Contains the main function `predict_and_add_metadata` |
 | `xgboots.model` | model weights |
-| `chromosome_means_function.R` | calculates chromosome means per cell |
+| `chromosome_means_function.R` | calculates chromosome means per cell. Requires `gene_mapping.txt` file |
 | `train_dataset_formation.R` | Training dataset preparation pipeline |
 | `train_val_test.R` | Code for training, validation, and independent test evaluation |
 | `gene_mapping.txt` | Contains gene-to-chromosome mapping derived from GTF annotation |
