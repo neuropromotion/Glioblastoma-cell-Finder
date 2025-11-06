@@ -5,7 +5,6 @@ library(celda)
 library(SingleCellExperiment)
 library(scran)
 library(tidyverse)
-library(ggplot2)
 cols <- c(
   "Stromal" = 'gray55',                
   "GBM" = 'gold1' 
@@ -53,8 +52,7 @@ count_plots <- function(obj,
   combined_plot <- vln_plot1 | vln_plot2 | vln_plot3
   return(combined_plot)
 }
-source("/home/amismailov/R/chromosome_means_function.R") # chromosome_means function
-
+source("/home/amismailov/R/chromosome_means_function.R") #get_chromosome_means func
 deduplex <- function(obj){
   nExp <- round(0.05 * ncol(obj))
   pK <- 0.09 
@@ -80,7 +78,7 @@ stantard_workflow <- function(seu, n_components=15, res=0.1){
   seu <- RunUMAP(seu, dims = 1:n_components)
   seu <- deduplex(seu)
   return(seu)
-} 
+}
 filter_ol <- function(obj){
   cells_both <- WhichCells(
     obj,
@@ -90,7 +88,7 @@ filter_ol <- function(obj){
   obj <- subset(obj, cells = cells_both, invert = TRUE)
   cat(length(cells_both), 'cells were filtered [OL filter]')
   return(obj)
-} # filter doubtful ols
+} # filter doubtful OLs
 filter_macro <- function(obj){
   cells_both <- WhichCells(
     obj,
@@ -102,7 +100,6 @@ filter_macro <- function(obj){
   return(obj)
 } # filter doubtful macrophages
 
-# TRAIN/VAL DATASETS 
 # GBM (Smart-seq2)
 # https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE89567
 # GMB (10x GENOMICS)
@@ -111,7 +108,8 @@ filter_macro <- function(obj){
 # https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE135045
 
 
-#--------------------------------------smatseq2 (GSE89567)------------------------
+
+#--------------------------------------smatseq2 GSE89567------------------------
 create_sue <-function(path="path_to/GSE89567.txt.gz"){
   dt <- fread(path)
   dt[[1]] <- trimws(gsub("[\"']", "", dt[[1]])) 
@@ -129,6 +127,7 @@ create_sue <-function(path="path_to/GSE89567.txt.gz"){
 seu <- create_sue()
 
 seu$mitoPercent <- PercentageFeatureSet(seu, pattern = '^MT-')
+
 count_plots(seu, feature_upper = 9e3, count_upper = 20e3)
 seu <- subset(
   seu,
@@ -139,8 +138,7 @@ seu <- stantard_workflow(seu, n_components = 5, res=0.01)
 
 DimPlot(seu, label=T)
 FeaturePlot(seu, 'MAG')
-
-# DEG assay: (optional)
+ 
 # FAM <- FindAllMarkers(seu,
 #                       logfc.threshold = 0.25,
 #                       min.pct = 0.1,
@@ -155,16 +153,18 @@ FeaturePlot(seu, 'MAG')
 #   top.genes[[curr_name]] = cluster_genes 
 # }
 
-# rename
 new_cluster_names <- c(
   '0' = 'GBM',
   '1' = 'Stromal',
   '2' = 'Stromal')
 seu <- RenameIdents(seu, new_cluster_names)
 
-DimPlot(seu, label=F, cols = cols)
+jpeg("vln.jpg", width = 1500, height = 1500, res=300)
+DimPlot(seu, label=F, cols = c('gold1', 'gray55'))
+dev.off()
 
-# chromosome means extraction
+
+# divide data into stromal and GBM part
 seu.cancer <- WhichCells(seu, idents = 'GBM')
 seu.cancer <- subset(seu, cells = seu.cancer)
 
@@ -174,28 +174,29 @@ seu.stromal <- subset(seu, cells = seu.stromal)
 cancer.barcodes <- colnames(seu.cancer)
 stromal.barcodes <- colnames(seu.stromal)
 
+# get chromosome means 
 counts <- GetAssayData(seu, assay = "RNA", layer = "counts")
 chromosome_means = get_chromosome_means(counts)
 
-
+# keep GBM cells
 keep <- cancer.barcodes[cancer.barcodes %in% rownames(chromosome_means)]
 chromosome_means.cancer <- chromosome_means[keep, , drop = FALSE]
-
+# keep stromal cells
 keep <- stromal.barcodes[stromal.barcodes %in% rownames(chromosome_means)]
 chromosome_means.stromal <- chromosome_means[keep, , drop = FALSE]
 
-
+# save
 write.csv(
   data.frame(chromosome_means.cancer),
   file = "chromosome_means_smartseq2.csv",
-  row.names = TRUE,            # не пишем номер строки
-  quote = FALSE                 # без кавычек, если не нужны
+  row.names = TRUE,            
+  quote = FALSE                 
 )
 write.csv(
   data.frame(chromosome_means.stromal),
   file = "chromosome_means_smartseq2_stromal.csv",
-  row.names = TRUE,            # не пишем номер строки
-  quote = FALSE                 # без кавычек, если не нужны
+  row.names = TRUE,            
+  quote = FALSE                
 )
 
 
@@ -217,7 +218,7 @@ seu <- stantard_workflow(seu, n_components = 5, res=0.1)
 DimPlot(seu)
 feature_plot(seu, 'EGFR')
 
-# optional:
+
 # FAM <- FindAllMarkers(seu,
 #                       logfc.threshold = 0.25,
 #                       min.pct = 0.1,
@@ -237,7 +238,7 @@ feature_plot(seu, 'EGFR')
 # }
 
 DimPlot(seu)
-feature_plot(seu, 'PTPRZ1')
+FeaturePlot(seu, 'PTPRZ1')
 new_cluster_names <- c(
   '0' = 'GBM',
   '1' = 'Stromal',
@@ -245,76 +246,71 @@ new_cluster_names <- c(
   '3' = 'Unconfindent'
   )  
 seu <- RenameIdents(seu, new_cluster_names)
-seu <- subset(seu, idents = "Unconfindent", invert = TRUE) # remove unconfident cells
+seu <- subset(seu, idents = "Unconfindent", invert = TRUE) # delete unconfident cells
 DimPlot(seu, label=F, cols = c('gold1', 'gray55'))
 
-#CNV
+# divide data into stromal and GBM part
 seu.cancer <- WhichCells(seu, idents = 'GBM')
 seu.cancer <- subset(seu, cells = seu.cancer)
-
+ 
 seu.stromal <- WhichCells(seu, idents = 'Stromal')
 seu.stromal <- subset(seu, cells = seu.stromal)
 
 cancer.barcodes <- colnames(seu.cancer)
 stromal.barcodes <- colnames(seu.stromal)
 
+# get chromosome means 
 counts <- GetAssayData(seu, assay = "RNA", layer = "counts")
 chromosome_means = get_chromosome_means(counts)
 
 
+# keep GBM cells
 keep <- cancer.barcodes[cancer.barcodes %in% rownames(chromosome_means)]
 chromosome_means.cancer <- chromosome_means[keep, , drop = FALSE]
 
+# keep stromal cells
 keep <- stromal.barcodes[stromal.barcodes %in% rownames(chromosome_means)]
 chromosome_means.stromal <- chromosome_means[keep, , drop = FALSE]
 
 
 
+# save
 write.csv(
   data.frame(chromosome_means.cancer),
   file = "chromosome_means_10x_1.csv",
-  row.names = TRUE,            # не пишем номер строки
-  quote = FALSE                 # без кавычек, если не нужны
+  row.names = TRUE,           
+  quote = FALSE                 
 )
 
 write.csv(
   data.frame(chromosome_means.stromal),
   file = "chromosome_means_10x_1_stromal.csv",
-  row.names = TRUE,            # не пишем номер строки
-  quote = FALSE                 # без кавычек, если не нужны
+  row.names = TRUE,            
+  quote = FALSE                
 )
 
 #-----------------------------------smartseq2 GSE135045-----------------------------
-# data processed in main_branch.R file 
-merged_filtered <- readRDS(file = "path_to/GSE135045_processed.rds")
-Idents(merged_filtered) <- 'init_annot'
-DimPlot(merged_filtered)
+# data prepared in https://github.com/neuropromotion/CAFs-in-glioblastoma-microenvironment/blob/main/main_branch.R
+merged_filtered <- readRDS(file = "path_to_RDS/merged_filtered_v2.rds")
 
-gbm <- WhichCells(merged_filtered, idents = 'GBM')
-gbm <- subset(merged_filtered, cells = gbm)
+# choose GBM and stromal cells by marker co-expression (rest cells will be advanced validation)
+cancer.cells <- WhichCells(merged_filtered, expression = PTPRZ1 > 1 & SOX2 > 1 & EGFR > 1 & CD163 == 0 & CD3E == 0 & RGS5 == 0)
+length(cancer.cells)
+macro.cells <- WhichCells(merged_filtered, expression = PTPRC > 1 & C3 > 1 & C1QA > 1 & PTPRZ1 == 0 & CD163 > 1)
+length(macro.cells)
+ol.cells <- WhichCells(merged_filtered, expression = MOG > 1 & MAG > 1 & SOX2 == 0 & PTPRZ1 == 0)
+length(ol.cells)
 
-stromal <- WhichCells(merged_filtered, idents = c('Macrophages/Microglia', 'Oligodendrocytes', 'T lymphocytes',
-                                                  'CAFs', 'Endothelial cells'))
-stromal <- subset(merged_filtered, cells = stromal)
+write.csv(data.frame(cell = cancer.cells), "cancer_barcodes.csv", row.names = FALSE) 
+write.csv(data.frame(cell = macro.cells), "macro_barcodes.csv", row.names = FALSE) 
+write.csv(data.frame(cell = ol.cells), "OL_barcodes.csv", row.names = FALSE) 
 
-#gbm
-counts.gbm <- GetAssayData(gbm, assay = "RNA", layer = "counts")
-chromosome_means.gbm = get_chromosome_means(counts.gbm)
-#stromal
-counts.stromal <- GetAssayData(stromal, assay = "RNA", layer = "counts")
-chromosome_means.stromal = get_chromosome_means(counts.stromal)
+counts <- GetAssayData(merged_filtered, assay = "RNA", layer = "counts")
+chromosome_means = get_chromosome_means(counts)
 #save
 write.csv(
-  data.frame(chromosome_means.gbm),
-  file = "chromosome_means_MF_gbm.csv",
-  row.names = TRUE,            # не пишем номер строки
-  quote = FALSE                 # без кавычек, если не нужны
+  data.frame(chromosome_means),
+  file = "chromosome_means_MF_full.csv",
+  row.names = TRUE,            
+  quote = FALSE                 
 )
-
-write.csv(
-  data.frame(chromosome_means.stromal),
-  file = "chromosome_means_MF_stromal.csv",
-  row.names = TRUE,            # не пишем номер строки
-  quote = FALSE                 # без кавычек, если не нужны
-)
-
