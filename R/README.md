@@ -33,16 +33,16 @@ FeaturePlot(seurat.obj, features = "GBM_prob", cols = c('blue','black',"red")) #
 ```
 
 ## Validation
-| True labels | Predicted labels |
+| Manual annotation | Predicted labels |
 | :--: | :--: |
-| <img src="test_results_plots/validation_true.png" width="375"> | <img src="test_results_plots/validation_predicted.png" width="375"> |
+| <img src="test_results_plots/val_true.png" width="375"> | <img src="test_results_plots/val_pred.png" width="375"> |
 
 ## TEST 1
-| True labels | Predicted labels |
+| Manual annotation | Predicted labels |
 | :--: | :--: |
 | <img src="test_results_plots/test1_true.png" width="375"> | <img src="test_results_plots/test_1_predicted.png" width="375"> |
 
 ## TEST 2
-| True labels | Predicted labels |
+| Manual annotation | Predicted labels |
 | :--: | :--: |
 | <img src="test_results_plots/test2_true.png" width="375"> | <img src="test_results_plots/test_2_predicted.png" width="375"> |
