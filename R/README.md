@@ -10,7 +10,7 @@ The model is designed for convenient use with **Seurat** workflows.
 
 | File | Description |
 |------|-------------|
-| `model.R` | Predtreinde model, requires weights (`xgboots.model`). Contains the main function `predict_and_add_metadata` |
+| `model.R` | Predtreinde model, requires weights (`xgboots.model`) and `chromosome_means_function.R`. Contains the main function `predict_and_add_metadata` |
 | `xgboots.model` | model weights |
 | `chromosome_means_function.R` | calculates chromosome means per cell |
 | `train_dataset_formation.R` | Training dataset preparation pipeline |
