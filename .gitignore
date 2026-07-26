@@ -6,4 +6,5 @@ data/healthy/
 annotation_cache/
 vae_checkpoints/
 .DS_Store
+output/.DS_Store
 __pycache__/
