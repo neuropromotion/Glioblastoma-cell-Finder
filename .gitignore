@@ -1,7 +1,9 @@
 # files
-GSE135045/
-3v3_10x/
-GSE173278/
-healthy/
+data/GSE135045/
+data/3v3_10x/
+data/GSE173278/
+data/healthy/
 annotation_cache/
 vae_checkpoints/
+.DS_Store
+__pycache__/

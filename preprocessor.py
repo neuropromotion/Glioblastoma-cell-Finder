@@ -16,10 +16,9 @@ class Preprocessor:
         "cpm",                 # CPM → map
     )
 
-    def __init__(self, chr_mapping_path='gene_mapping.txt',
-                       ens_map_path='ensembl_gene_mapping.csv'): 
-        self.ens_map_path = ens_map_path
-        self.ens_map = pd.read_csv(ens_map_path)
+    def __init__(self, chr_mapping_path=CHR_MAPPING_PATH): 
+        self.chr_mapping_path = chr_mapping_path
+        self.ens_map = pd.read_csv(ENS_MAP_PATH)
         
     def load_10x_data(self, path_10x): 
         path = Path(path_10x)
