@@ -33,5 +33,8 @@ curl -L -o healthy/matrix.csv https://idk-etl-prod-download-bucket.s3.amazonaws.
 
 3) healthy_reference - референс здоровых клеток, 13 к. Одно распределение класса 0. Если что можно и больше
 
+healthy single nuclus datasets (We used 15k samples from smartseq dataset):
+10x 76k nuclei: https://brain-map.org/our-research/cell-types-taxonomies/cell-types-database-rna-seq-data/human-m1-10x
+smartseq 50k nuclei: https://brain-map.org/our-research/cell-types-taxonomies/cell-types-database-rna-seq-data/human-multiple-cortical-areas-smart-seq
 
 <img src="output/cancer_1_2_healthy.png" alt="Figure 1" width="800">
