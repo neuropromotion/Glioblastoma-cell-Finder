@@ -33,4 +33,4 @@ curl -L -o healthy/matrix.csv https://idk-etl-prod-download-bucket.s3.amazonaws.
 
 3) healthy_reference - референс здоровых клеток, 13 к. Одно распределение класса 0. Если что можно и больше
 
-<img src="output/fig1.png" alt="Figure 1" width="600">
+<img src="output/cancer_1_2_healthy.png" alt="Figure 1" width="600">
