@@ -32,3 +32,6 @@ curl -L -o healthy/matrix.csv https://idk-etl-prod-download-bucket.s3.amazonaws.
 2) cancer_2 - объединение 10 образцов рака мозга из одной серии образцов. Тут из 70 тысяч наблюдений, около 60 раковых, так что распределение выглядит как большой пик класса 1 и маленький класса 0
 
 3) healthy_reference - референс здоровых клеток, 13 к. Одно распределение класса 0. Если что можно и больше
+
+
+<img src="output/cancer_1_2_healthy.png" alt="Figure 1" width="800">
